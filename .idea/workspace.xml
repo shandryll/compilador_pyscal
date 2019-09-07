@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9fa2253-cb60-4055-ad3c-e94d597b8ed1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/SymbolTable.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/files/teste.txt" beforeDir="false" afterPath="$PROJECT_DIR$/files/teste.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/automaton.py" beforeDir="false" afterPath="$PROJECT_DIR$/automaton.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -14,38 +13,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+            <state relative-caret-position="272">
+              <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/automaton.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="26" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/error.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/symbol_table.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="23" column="74" selection-start-line="23" selection-start-column="74" selection-end-line="23" selection-end-column="74" />
+            <state relative-caret-position="238">
+              <caret line="37" selection-start-line="45" selection-end-line="56" selection-end-column="3" />
             </state>
           </provider>
         </entry>
@@ -71,6 +52,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>upper</find>
+      <find>stat</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -84,8 +66,8 @@
         <option value="$PROJECT_DIR$/error.py" />
         <option value="$PROJECT_DIR$/files/teste.txt" />
         <option value="$PROJECT_DIR$/symbol_table.py" />
-        <option value="$PROJECT_DIR$/automaton.py" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/automaton.py" />
       </list>
     </option>
   </component>
@@ -241,17 +223,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/automaton.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="26" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="26" />
+        <state relative-caret-position="272">
+          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
+    <entry file="file://$PROJECT_DIR$/automaton.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
+        <state relative-caret-position="238">
+          <caret line="37" selection-start-line="45" selection-end-line="56" selection-end-column="3" />
         </state>
       </provider>
     </entry>
