@@ -10,7 +10,7 @@ class Automaton:
         self.current_column = 1
         self.symbol_table = SymbolTable()
 
-    def verify_automaton(self, char):
+    def verify_lexema(self, char):
 
         if not char == '\n':
             if not char:

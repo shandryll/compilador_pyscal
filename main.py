@@ -9,7 +9,7 @@ def reader_file(filepath):
         while eof is False:
             char = f.read(1)
 
-            eof = automaton.verify_automaton(char)
+            eof = automaton.verify_lexema(char)
 
 
 if __name__ == '__main__':
