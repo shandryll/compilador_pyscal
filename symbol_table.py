@@ -14,14 +14,14 @@ class SymbolTable:
             create_id = 'ID_' + lexema.upper()
 
             if create_kw in self.dict_symbol:
-                return '<' + create_kw + ', ' + self.dict_symbol[create_kw]
+                return '<' + create_kw + ', ' + self.dict_symbol[create_kw] + '>'
             elif create_op in self.dict_symbol:
-                return '<' + create_op + ', ' + self.dict_symbol[create_op]
+                return '<' + create_op + ', ' + self.dict_symbol[create_op] + '>'
             elif create_id in self.dict_symbol:
-                return '<' + create_id + ', ' + self.dict_symbol[create_id]
+                return '<' + create_id + ', ' + self.dict_symbol[create_id] + '>'
             else:
                 self.dict_symbol[create_id] = lexema
-                return '<' + create_id + ', ' + self.dict_symbol[create_id]
+                return '<' + create_id + ', ' + self.dict_symbol[create_id] + '>'
 
         except Exception as err:
             print(f'{err}')
