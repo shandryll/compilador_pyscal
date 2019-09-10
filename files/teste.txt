@@ -1,4 +1,4 @@
-integer num1 = 100
+integer num1 = 100;
 integer num2 = 100
 if num1 == num2
-String ipsun = bla and blabla or then
+String ipsun = bla and != blabla or then

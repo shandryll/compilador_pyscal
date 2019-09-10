@@ -6,6 +6,7 @@ def reader_file(filepath):
         eof = False
         return_pointer = False
         automaton = Automaton()
+        print("\n=>Lista de tokens:")
 
         while eof is False:
             char = f.read(1)
@@ -19,6 +20,17 @@ def reader_file(filepath):
             if not char:
                 eof = True
 
+        print("\n=>Tabela de simbolos:")
+
+        automaton.print_symbol_table()
+        
+        try:
+            f.close()
+        except IOError:
+            print('Erro ao fechar arquivo. Encerrando.')
+            sys.exit(0)
+            
+        print('\n=> Fim da compilacao')
 
 if __name__ == '__main__':
     reader_file('./files/teste.txt')

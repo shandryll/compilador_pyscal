@@ -25,3 +25,7 @@ class SymbolTable:
 
         except Exception as err:
             print(f'{err}')
+
+    def print_symbol_table(self):
+        for token_id, token_value in self.dict_symbol.items():
+            print(token_id, ":", token_value)
