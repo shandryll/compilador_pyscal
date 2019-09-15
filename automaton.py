@@ -27,6 +27,7 @@ class Automaton:
             elif char == '=':
                 self.state = 9
             elif char == '-':
+                self.lexema += char
                 self.state = 3
             elif char == '!':
                 self.state = 6
@@ -46,8 +47,56 @@ class Automaton:
                 self.signals_lexico_error("Caractere invalido [" + char + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
         
         elif self.state == 3:
-            if char.isdigit():
-                print("jfkdhg")
+            if len(self.token_list) > 0:
+                if "NUM" in self.token_list[len(self.token_list) - 1]:
+                    if char == '-':
+                        self.lexema += char
+                        self.state = 1
+                    else:
+                        if self.lexema.count('-') == 1:
+                            self.state = 1
+                            self.lexema = ""
+                            self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            return True
+                        else:
+                            for i in range(self.lexema.count('-')-1):
+                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            self.state = 1
+                            self.lexema = ""
+                            self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            return True
+                else:
+                    if char == '-':
+                        self.lexema += char
+                    else:
+                        if self.lexema.count('-') == 1:
+                            self.state = 1
+                            self.lexema = ""
+                            self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            return True
+                        else:
+                            for i in range(self.lexema.count('-')-1):
+                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            self.state = 1
+                            self.lexema = ""
+                            self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            return True
+            else:
+                if char == '-':
+                    self.lexema += char
+                else:
+                    if self.lexema.count('-') == 1:
+                        self.state = 1
+                        self.lexema = ""
+                        self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                        return True
+                    else:
+                        for i in range(self.lexema.count('-')-1):
+                            self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                        self.state = 1
+                        self.lexema = ""
+                        self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                        return True
 
         # Reconehceu o char '!' e espera um '=' para retornar o token 'diferente' - se não sinaliza erro lexico
         elif self.state == 6:
