@@ -6,19 +6,21 @@ def reader_file(filepath):
         eof = False
         return_pointer = False
         automaton = Automaton()
-        print("\n=>Lista de tokens:")
 
+        print("\n=>Lista de tokens:")
+        
         while eof is False:
             char = f.read(1)
             
-            content, return_pointer = automaton.verify_lexema(char)
+            return_pointer = automaton.verify_lexema(char)
 
             if return_pointer:
                 f.seek(f.tell()-1, os.SEEK_SET)
-            if content != None:
-                print(content)
             if not char:
                 eof = True
+
+        for token in automaton.get_token_list():
+            print(token)
 
         print("\n=>Tabela de simbolos:")
 
