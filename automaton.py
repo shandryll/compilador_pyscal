@@ -55,13 +55,15 @@ class Automaton:
                         if self.lexema.count('-') == 1:
                             self.state = 1
                             self.lexema = ""
+                            self.current_column = self.current_column - 1
                             self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
                         else:
                             for i in range(self.lexema.count('-')-1):
-                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
                             self.state = 1
                             self.lexema = ""
+                            self.current_column = self.current_column - 1
                             self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
                 else:
@@ -71,13 +73,15 @@ class Automaton:
                         if self.lexema.count('-') == 1: 
                             self.state = 1
                             self.lexema = ""
+                            self.current_column = self.current_column - 1
                             self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
                         else:
                             for i in range(self.lexema.count('-')-1):
-                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
                             self.state = 1
                             self.lexema = ""
+                            self.current_column = self.current_column - 1
                             self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
             else:
@@ -87,6 +91,7 @@ class Automaton:
                     if self.lexema.count('-') == 1:
                         self.state = 1
                         self.lexema = ""
+                        self.current_column = self.current_column - 1
                         self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                         return True
                     else:
@@ -94,6 +99,7 @@ class Automaton:
                             self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                         self.state = 1
                         self.lexema = ""
+                        self.current_column = self.current_column - 1
                         self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                         return True
 
