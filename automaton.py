@@ -51,7 +51,6 @@ class Automaton:
                 if "NUM" in self.token_list[len(self.token_list) - 1]:
                     if char == '-':
                         self.lexema += char
-                        self.state = 1
                     else:
                         if self.lexema.count('-') == 1:
                             self.state = 1
@@ -69,7 +68,7 @@ class Automaton:
                     if char == '-':
                         self.lexema += char
                     else:
-                        if self.lexema.count('-') == 1:
+                        if self.lexema.count('-') == 1: 
                             self.state = 1
                             self.lexema = ""
                             self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
