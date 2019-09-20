@@ -48,7 +48,7 @@ class Automaton:
         
         elif self.state == 3:
             if len(self.token_list) > 0:
-                if "NUM" in self.token_list[len(self.token_list) - 1]:
+                if "NUM" in self.token_list[len(self.token_list) - 1] or "ID" in self.token_list[len(self.token_list) - 1]:
                     if char == '-':
                         self.lexema += char
                     else:
@@ -59,12 +59,11 @@ class Automaton:
                             self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
                         else:
-                            for i in range(self.lexema.count('-')-1):
-                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
+                            for i in range(self.lexema.count('-')):
+                                self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
                             self.state = 1
                             self.lexema = ""
                             self.current_column = self.current_column - 1
-                            self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
                 else:
                     if char == '-':
@@ -78,11 +77,10 @@ class Automaton:
                             return True
                         else:
                             for i in range(self.lexema.count('-')-1):
-                                self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
+                                self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
                             self.state = 1
                             self.lexema = ""
                             self.current_column = self.current_column - 1
-                            self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
             else:
                 if char == '-':
