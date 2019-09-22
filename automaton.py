@@ -1,5 +1,5 @@
 from symbol_table import SymbolTable
-
+import sys
 
 class Automaton:
 
@@ -9,6 +9,7 @@ class Automaton:
         self.token_list = []
         self.current_line = 1
         self.current_column = 1
+        self.cont_erros = 0
         self.symbol_table = SymbolTable()
 
     def verify_lexema(self, char):
@@ -24,31 +25,61 @@ class Automaton:
                 self.current_line = self.current_line + 1
                 self.current_column = 1
                 self.state = 1 
-            elif char == '=':
-                self.state = 9
+            elif char == '+':
+                self.token_list.append("<OP_SUM, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '-':
                 self.lexema += char
                 self.state = 3
+            elif char == '*':
+                self.token_list.append("<OP_MULTIPLICATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '/':
+                self.token_list.append("<OP_DIVISION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '!':
                 self.state = 6
-            elif char == '<':
-                self.state = 15
+            elif char == '=':
+                self.state = 9
             elif char == '>':
                 self.state = 12
-            elif char.isdigit():
-                self.lexema += char
-                self.state = 25
+            elif char == '<':
+                self.state = 15
+            elif char == '/':
+                self.state = 16
             elif char.isalpha():
                 self.lexema += char
                 self.state = 18
-            elif char == '/':
-                self.state = 16
+            elif char.isdigit():
+                self.lexema += char
+                self.state = 20
+            elif char == ':':
+                self.token_list.append("<CHAR_TWO_POINTS, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == ',':
+                self.token_list.append("<CHAR_COMMA, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '.':
+                self.token_list.append("<CHAR_POINT, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == ';':
+                self.token_list.append("<CHAR_SEMICOLON, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '(':
+                self.token_list.append("<CHAR_OPEN_PARENTHESES, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == ')':
+                self.token_list.append("<CHAR_CLOSE_PARENTHESES, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '{':
+                self.token_list.append("<CHAR_OPEN_KEY, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '}':
+                self.token_list.append("<CHAR_CLOSE_KEY, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '{':
+                self.token_list.append("<CHAR_OPEN_KEY, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '#':
+                self.state = 30
+            elif char == '\"':
+                self.lexema += char
+                self.state = 34
             else:
                 self.signals_lexico_error("Caractere invalido [" + char + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
         
+        # Reconehceu o char '-' e verifica se o token anterior é um integer, double ou string então retorna um token subtração, se não retorna um token negação
         elif self.state == 3:
             if len(self.token_list) > 0:
-                if "NUM" in self.token_list[len(self.token_list) - 1] or "ID" in self.token_list[len(self.token_list) - 1]:
+                if "INTEGER" in self.token_list[len(self.token_list) - 1] or "DOUBLE" in self.token_list[len(self.token_list) - 1] or "STRING" in self.token_list[len(self.token_list) - 1] or  "ID" in self.token_list[len(self.token_list) - 1]:
                     if char == '-':
                         self.lexema += char
                     else:
@@ -157,17 +188,49 @@ class Automaton:
                 self.lexema = ""
                 return True
         
-        # Reconehceu um char numerico e concatena no lexema ate que outro char não numerico seja reconhecido e então retorna um token 'num'
-        elif self.state == 25:
+        # Reconehceu um char numerico e concatena no lexema ate que outro char não numerico seja reconhecido, exeto char '.' que começa a reconhecer um token 'double', se não então retorna um token 'integer'
+        elif self.state == 20:
             if char.isdigit():
                self.lexema += char
+            elif char == '.':
+                self.lexema += char
+                self.state = 31
             else:
                 self.state = 1
                 self.current_column = self.current_column - 1
-                self.token_list.append("<NUM, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<INTEGER, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                 self.lexema = ""
                 return True
-        
+
+        # Reconehceu um char numerico e um char '.' continua concatenando no lexema ate que outro char não numerico seja reconhecido e então retorna um token 'double', caso nenhum char numerico seja reconhecido depois do char '.' retorno erro lexico
+        elif self.state == 31:
+            if char.isdigit():
+               self.lexema += char
+            else:
+                if self.lexema[-1:] != '.':
+                    self.state = 1
+                    self.current_column = self.current_column - 1
+                    self.token_list.append("<DOUBLE, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                    self.lexema = ""
+                    return True
+                else:
+                    self.signals_lexico_error("Formato de numero decimal inválido [" + self.lexema + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                    self.lexema = ""
+
+        # Reconheceu o char '#' e tudo o que vier depois sera ignorado como comentario ate que um \n seja reconhecido
+        elif self.state == 30:
+            if char == '\n':
+                self.state = 1
+                return True
+
+        # Reconheceu o char " e tudo o que vier depois sera concatenado no lexema ate que um outro char " seja reconhecido e então retorna uma string
+        elif self.state == 34:
+            if char != '\"':
+                self.lexema += char
+            else:
+                self.lexema += char
+                self.token_list.append("<STRING, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            
         return False
 
     def print_symbol_table(self):
@@ -178,3 +241,6 @@ class Automaton:
 
     def signals_lexico_error(self, message):
         print("[Erro Lexico]: ", message, "\n")
+        self.cont_erros = self.cont_erros + 1
+        if self.cont_erros >= 5:
+            sys.exit(0)

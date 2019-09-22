@@ -1,5 +1,5 @@
 from automaton import Automaton
-import os
+import os, sys
 
 def reader_file(filepath):
     with open(filepath) as f:
