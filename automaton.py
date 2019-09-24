@@ -76,7 +76,7 @@ class Automaton:
             else:
                 self.signals_lexico_error("Caractere invalido [" + char + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
         
-        # Reconehceu o char '-' e verifica se o token anterior é um integer, double ou string então retorna um token subtração, se não retorna um token negação
+        # Reconhece o char '-' e verifica se o token anterior é um integer, double ou string então retorna um token subtração, se não retorna um token negação
         elif self.state == 3:
             if len(self.token_list) > 0:
                 if "INTEGER" in self.token_list[len(self.token_list) - 1] or "DOUBLE" in self.token_list[len(self.token_list) - 1] or "STRING" in self.token_list[len(self.token_list) - 1] or  "ID" in self.token_list[len(self.token_list) - 1]:
@@ -132,7 +132,7 @@ class Automaton:
                         self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                         return True
 
-        # Reconehceu o char '!' e espera um '=' para retornar o token 'diferente' - se não sinaliza erro lexico
+        # Reconhece o char '!' e espera um '=' para retornar o token 'diferente' - se não sinaliza erro lexico
         elif self.state == 6:
             if char == '=':
                 self.state = 1
@@ -141,7 +141,7 @@ class Automaton:
             else:
                 self.signals_lexico_error("Caractere invalido [" + char + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
         
-        # Reconehceu o char '=' e espera um '=' para retornar o token 'igual' - se não retorna o token 'atribuição'
+        # Reconhece o char '=' e espera um '=' para retornar o token 'igual' - se não retorna o token 'atribuição'
         elif self.state == 9:
             if char == '=':
                 self.state = 1
@@ -153,7 +153,7 @@ class Automaton:
                self.token_list.append("<OP_ASSIGN, => - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                return True
         
-        # Reconehceu o char '>' e espera um '=' para retornar o token 'maior igual' - se não retorna o token 'maior'
+        # Reconhece o char '>' e espera um '=' para retornar o token 'maior igual' - se não retorna o token 'maior'
         elif self.state == 12:
             if char == '=':
                 self.state = 1
@@ -165,7 +165,7 @@ class Automaton:
                self.token_list.append("<OP_GREATER, >> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                return True
         
-        # Reconehceu o char '<' e espera um '=' para retornar o token 'menor igual' - se não retorna o token 'menor'
+        # Reconhece o char '<' e espera um '=' para retornar o token 'menor igual' - se não retorna o token 'menor'
         elif self.state == 15:
             if char == '=':
                 self.state = 1
@@ -177,7 +177,7 @@ class Automaton:
                self.token_list.append("<OP_LESS, <> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                return True
         
-        # Reconehceu um char alfanumerico e concatena no lexema ate que outro char não alfanumerico seja reconhecido e então retorna um token 'id'
+        # Reconhece um char alfanumerico e concatena no lexema ate que outro char não alfanumerico seja reconhecido e então retorna um token 'id'
         elif self.state == 18:
             if char.isalnum():
                 self.lexema += char
@@ -188,7 +188,7 @@ class Automaton:
                 self.lexema = ""
                 return True
         
-        # Reconehceu um char numerico e concatena no lexema ate que outro char não numerico seja reconhecido, exeto char '.' que começa a reconhecer um token 'double', se não então retorna um token 'integer'
+        # Reconhece um char numerico e concatena no lexema ate que outro char não numerico seja reconhecido, exeto char '.' que começa a reconhecer um token 'double', se não então retorna um token 'integer'
         elif self.state == 20:
             if char.isdigit():
                self.lexema += char
@@ -202,7 +202,7 @@ class Automaton:
                 self.lexema = ""
                 return True
 
-        # Reconehceu um char numerico e um char '.' continua concatenando no lexema ate que outro char não numerico seja reconhecido e então retorna um token 'double', caso nenhum char numerico seja reconhecido depois do char '.' retorno erro lexico
+        # Reconhece um char numerico e um char '.' continua concatenando no lexema ate que outro char não numerico seja reconhecido e então retorna um token 'double', caso nenhum char numerico seja reconhecido depois do char '.' retorno erro lexico
         elif self.state == 31:
             if char.isdigit():
                self.lexema += char

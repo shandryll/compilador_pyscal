@@ -7,7 +7,7 @@ def reader_file(filepath):
         return_pointer = False
         automaton = Automaton()
 
-        print("\n=>Lista de tokens:")
+        print("\n=> Lista de tokens:")
         
         while eof is False:
             char = f.read(1)
@@ -22,17 +22,17 @@ def reader_file(filepath):
         for token in automaton.get_token_list():
             print(token)
 
-        print("\n=>Tabela de simbolos:")
+        print("\n=> Tabela de símbolos:")
 
         automaton.print_symbol_table()
         
         try:
             f.close()
         except IOError:
-            print('Erro ao fechar arquivo. Encerrando.')
+            print('Erro ao fechar arquivo. Encerrando...')
             sys.exit(0)
             
-        print('\n=> Fim da compilacao')
+        print('\n=> Fim da compilação')
 
 if __name__ == '__main__':
     reader_file('./files/teste.txt')
