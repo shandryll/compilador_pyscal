@@ -51,23 +51,21 @@ class Automaton:
                 self.lexema += char
                 self.state = 20
             elif char == ':':
-                self.token_list.append("<CHAR_TWO_POINTS, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_TWO_POINTS, :> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == ',':
-                self.token_list.append("<CHAR_COMMA, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_COMMA, ,> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '.':
-                self.token_list.append("<CHAR_POINT, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_POINT, .> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == ';':
-                self.token_list.append("<CHAR_SEMICOLON, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_SEMICOLON, ;> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '(':
-                self.token_list.append("<CHAR_OPEN_PARENTHESES, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_OPEN_PARENTHESES, (> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == ')':
-                self.token_list.append("<CHAR_CLOSE_PARENTHESES, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_CLOSE_PARENTHESES, )> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '{':
-                self.token_list.append("<CHAR_OPEN_KEY, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_OPEN_KEY, {> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '}':
-                self.token_list.append("<CHAR_CLOSE_KEY, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
-            elif char == '{':
-                self.token_list.append("<CHAR_OPEN_KEY, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.token_list.append("<CHAR_CLOSE_KEY, }> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '#':
                 self.state = 30
             elif char == '\"':
@@ -90,7 +88,8 @@ class Automaton:
                             self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                             return True
                         else:
-                            for i in range(self.lexema.count('-')):
+                            self.token_list.append("<OP_SUBTRACTION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                            for i in range(self.lexema.count('-') - 1):
                                 self.token_list.append("<OP_NEGATION, -> - line: " + str(self.current_line) + ", column: " + str(self.current_column - self.lexema.count('-') + i))
                             self.state = 1
                             self.lexema = ""
@@ -214,23 +213,28 @@ class Automaton:
                     self.lexema = ""
                     return True
                 else:
-                    self.signals_lexico_error("Formato de numero decimal inválido [" + self.lexema + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
-                    self.lexema = ""
+                    self.signals_lexico_error("Formato de numero decimal inválido [" + self.lexema + "] Caractere invalido [" + char + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
 
         # Reconheceu o char '#' e tudo o que vier depois sera ignorado como comentario ate que um \n seja reconhecido
         elif self.state == 30:
-            if char == '\n':
+            if char == '\n' or char == '':
                 self.state = 1
-                return True
+                self.current_line = self.current_line + 1
 
         # Reconheceu o char " e tudo o que vier depois sera concatenado no lexema ate que um outro char " seja reconhecido e então retorna uma string
         elif self.state == 34:
             if char != '\"':
+                if char == '':
+                    self.signals_lexico_error("String não fechada em: [" + self.lexema + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column - 1))
+                    self.lexema = ""
+
                 self.lexema += char
             else:
                 self.lexema += char
+                self.state = 1
                 self.token_list.append("<STRING, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
-            
+                self.lexema = ""
+
         return False
 
     def print_symbol_table(self):
