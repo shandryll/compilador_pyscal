@@ -62,6 +62,10 @@ class Automaton:
                 self.token_list.append("<CHAR_OPEN_PARENTHESES, (> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == ')':
                 self.token_list.append("<CHAR_CLOSE_PARENTHESES, )> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == '[':
+                self.token_list.append("<CHAR_OPEN_SQUARE_BRACKETS, [> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+            elif char == ']':
+                self.token_list.append("<CHAR_CLOSE_SQUARE_BRACKETS, ]> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '{':
                 self.token_list.append("<CHAR_OPEN_KEY, {> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
             elif char == '}':
