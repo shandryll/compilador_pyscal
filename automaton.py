@@ -142,7 +142,10 @@ class Automaton:
                 self.token_list.append("<OP_DIFFERENT, !=> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
                 return False
             else:
-                self.signals_lexico_error("Caractere invalido [" + char + "] - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                self.state = 1
+                self.current_column = self.current_column - 1
+                self.token_list.append("<OP_EXCLAMATION, !> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                return True
         
         # Reconhece o char '=' e espera um '=' para retornar o token 'igual' - se não retorna o token 'atribuição'
         elif self.state == 9:
