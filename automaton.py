@@ -237,10 +237,15 @@ class Automaton:
 
                 self.lexema += char
             else:
-                self.lexema += char
-                self.state = 1
-                self.token_list.append("<STRING, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
-                self.lexema = ""
+                if self.lexema[-1:] != '\"':
+                    self.lexema += char
+                    self.state = 1
+                    self.token_list.append("<STRING, " + self.lexema + "> - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                    self.lexema = ""
+                else:
+                    self.signals_lexico_error("String vazia - line: " + str(self.current_line) + ", column: " + str(self.current_column))
+                    self.lexema = ""
+                    self.state = 1
 
         return False
 
