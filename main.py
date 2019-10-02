@@ -35,4 +35,4 @@ def reader_file(filepath):
         print('\n=> Fim da compilação')
 
 if __name__ == '__main__':
-    reader_file('./files/teste.txt')
+    reader_file('./files/HelloPyscal.pys')
