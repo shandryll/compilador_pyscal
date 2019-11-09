@@ -1,3 +1,5 @@
+from token import Token
+
 class SymbolTable:
 
     def __init__(self):
@@ -14,14 +16,14 @@ class SymbolTable:
             create_id = 'ID_' + lexema.upper()
 
             if create_kw in self.dict_symbol:
-                return '<' + create_kw + ', ' + self.dict_symbol[create_kw] + '>'
+                return Token(create_kw, lexema, 0, 0)
             elif create_op in self.dict_symbol:
-                return '<' + create_op + ', ' + self.dict_symbol[create_op] + '>'
+                return Token(create_op, lexema, 0, 0)
             elif create_id in self.dict_symbol:
-                return '<' + create_id + ', ' + self.dict_symbol[create_id] + '>'
+                return Token("ID", lexema, 0, 0)
             else:
                 self.dict_symbol[create_id] = lexema
-                return '<' + create_id + ', ' + self.dict_symbol[create_id] + '>'
+                return Token("ID", lexema, 0, 0)
 
         except Exception as err:
             print(f'{err}')

@@ -1,18 +1,30 @@
-   # programa exemplo em Pyscal
-	class Pressao:
-		def bool podeEntregarDepois():
-			return false;
-		end;
+# Teste2
 
-		defstatic void main(String[] args):
-			write("Caros alunos de Compiladores,");
-			write("");
-			write("Este eh um codigo de exemplo em Pyscal!");
-			write("");
+class TesteT2: 
+   def bool exemploFuncao(integer x, integer y):
+      while(x <= y):
+         y = --y;
+      end;
+      return false;
+   end;
+
+   defstatic void main(String[] args):
+      double x;
+      integer y;
+
+      y = 2.0 + 1 - 1;
+      x = 00.42 * (-y) / 1;
+      z = 10;
+		
+      if(!(z != 10.00)):
+         write(x <= y and z != 10);
+      else:
+         write(x > y and z == 10);
+      end;
 			
-			if(podeEntregarDepois()):
-				writeln("Pode, mas nao tem ponto.");
-			end;
-		end;
-	end.
+      if (!exemploDeFuncao(x,y) or exemploDeFuncao(x,z))
+         write("Entrou aqui");
+      end;
+   end;
+end.
 			
