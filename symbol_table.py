@@ -1,32 +1,41 @@
 from token import Token
+from tag import Tag
 
 class SymbolTable:
 
     def __init__(self):
-        self.dict_symbol = {'KW_CLASS': 'class', 'KW_END': 'end', 'KW_DEF': 'def', 'KW_RETURN': 'return',
-                           'KW_DEFSTATIC': 'defstatic', 'KW_MAIN': 'main', 'KW_VOID': 'void', 'KW_STRING': 'String',
-                           'KW_BOOL': 'bool', 'KW_INTEGER': 'integer', 'KW_DOUBLE': 'double', 'KW_IF': 'if',
-                           'KW_ELSE': 'else', 'KW_WHILE': 'while', 'KW_WRITE': 'write', 'KW_TRUE': 'true',
-                           'KW_FALSE': 'false', 'OP_OR': 'or', 'OP_AND': 'and'}
+        self.dict_symbol = {
+            Token(Tag.KW_CLASS, 'class', 0, 0),
+            Token(Tag.KW_END, 'end', 0, 0),
+            Token(Tag.KW_DEF, 'def', 0, 0),
+            Token(Tag.KW_RETURN, 'return', 0, 0),
+            Token(Tag.KW_DEFSTATIC, 'defstatic', 0, 0),
+            Token(Tag.KW_MAIN, 'main', 0, 0),
+            Token(Tag.KW_VOID, 'void', 0, 0),
+            Token(Tag.KW_STRING, 'String', 0, 0),
+            Token(Tag.KW_BOOL, 'bool', 0, 0),
+            Token(Tag.KW_INTEGER, 'integer', 0, 0),
+            Token(Tag.KW_DOUBLE, 'double', 0, 0),
+            Token(Tag.KW_IF, 'if', 0, 0),
+            Token(Tag.KW_ELSE, 'else', 0, 0),
+            Token(Tag.KW_WHILE, 'while', 0, 0),
+            Token(Tag.KW_WRITE, 'write', 0, 0),
+            Token(Tag.KW_TRUE, 'true', 0, 0),
+            Token(Tag.KW_FALSE, 'false', 0, 0),
+            Token(Tag.OP_OR, 'or', 0, 0),
+            Token(Tag.OP_AND, 'and', 0, 0)
+        }
 
-    def add_lexema(self, lexema):
-        try:
-            create_kw = 'KW_' + lexema.upper()
-            create_op = 'OP_' + lexema.upper()
-            create_id = 'ID_' + lexema.upper()
+    def getToken(self, lexema):
+        token = self.dict_symbol.get(lexema)
+        return token
 
-            if create_kw in self.dict_symbol:
-                return Token(create_kw, lexema, 0, 0)
-            elif create_op in self.dict_symbol:
-                return Token(create_op, lexema, 0, 0)
-            elif create_id in self.dict_symbol:
-                return Token("ID", lexema, 0, 0)
-            else:
-                self.dict_symbol[create_id] = lexema
-                return Token("ID", lexema, 0, 0)
+    def addToken(self, lexema, token):
+        self.ts[lexema] = token
 
-        except Exception as err:
-            print(f'{err}')
+    def printTS(self):
+        for k, t in (self.ts.items()):
+            print(k, ":", t.toString())
 
     def print_symbol_table(self):
         for token_id, token_value in self.dict_symbol.items():

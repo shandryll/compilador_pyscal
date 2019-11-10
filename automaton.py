@@ -1,5 +1,6 @@
 from symbol_table import SymbolTable
 from token import Token
+from tag import Tag
 import sys
 
 class Automaton:
@@ -33,7 +34,7 @@ class Automaton:
             # Reconhece o char inicial e atribui um estado para resolve-lo
             if self.state == 1:
                 if char == '':
-                    return Token("EOF", "EOF", self.current_line, self.current_column)
+                    return Token(Tag.EOF, Tag.EOF, self.current_line, self.current_column)
                 if char == ' ' or char == '\t' or char == '\r':
                     self.state = 1 
                 elif char == '\n':
@@ -41,14 +42,14 @@ class Automaton:
                     self.current_column = 1
                     self.state = 1 
                 elif char == '+':
-                    return Token("OP_SUM", "+", self.current_line, self.current_column)
+                    return Token(Tag.OP_SUM, "+", self.current_line, self.current_column)
                 elif char == '-':
                     self.lexema += char
                     self.state = 3
                 elif char == '*':
-                    return Token("OP_MULTIPLICATION", "*", self.current_line, self.current_column)
+                    return Token(Tag.OP_MULTIPLICATION, "*", self.current_line, self.current_column)
                 elif char == '/':
-                    return Token("OP_DIVISION", "/", self.current_line, self.current_column)
+                    return Token(Tag.OP_DIVISION, "/", self.current_line, self.current_column)
                 elif char == '!':
                     self.state = 6
                 elif char == '=':
@@ -66,25 +67,25 @@ class Automaton:
                     self.lexema += char
                     self.state = 20
                 elif char == ':':
-                    return Token("CHAR_TWO_POINTS", ":",  self.current_line, self.current_column)
+                    return Token(Tag.CHAR_TWO_POINTS, ":",  self.current_line, self.current_column)
                 elif char == ',':
-                    return Token("CHAR_COMMA", ",", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_COMMA, ",", self.current_line, self.current_column)
                 elif char == '.':
-                    return Token("CHAR_POINT", ".", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_POINT, ".", self.current_line, self.current_column)
                 elif char == ';':
-                    return Token("CHAR_SEMICOLON", ";", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_SEMICOLON, ";", self.current_line, self.current_column)
                 elif char == '(':
-                    return Token("CHAR_OPEN_PARENTHESES", "(", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_OPEN_PARENTHESES, "(", self.current_line, self.current_column)
                 elif char == ')':
-                    return Token("CHAR_CLOSE_PARENTHESES", ")", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_CLOSE_PARENTHESES, ")", self.current_line, self.current_column)
                 elif char == '[':
-                    return Token("CHAR_OPEN_SQUARE_BRACKETS", "[", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_OPEN_SQUARE_BRACKETS, "[", self.current_line, self.current_column)
                 elif char == ']':
-                    return Token("CHAR_CLOSE_SQUARE_BRACKETS", "]", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_CLOSE_SQUARE_BRACKETS, "]", self.current_line, self.current_column)
                 elif char == '{':
-                    return Token("CHAR_OPEN_KEY", "{", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_OPEN_KEY, "{", self.current_line, self.current_column)
                 elif char == '}':
-                    return Token("CHAR_CLOSE_KEY", "}", self.current_line, self.current_column)
+                    return Token(Tag.CHAR_CLOSE_KEY, "}", self.current_line, self.current_column)
                 elif char == '#':
                     self.state = 30
                 elif char == '\"':
@@ -95,7 +96,7 @@ class Automaton:
             
             # Reconhece o char '-' e verifica se o token anterior é um integer, double ou string então retorna um token subtração, se não retorna um token negação
             elif self.state == 3:
-                if "INTEGER" in self.token_ant.getNome() or "DOUBLE" in self.token_ant.getNome() or "STRING" in self.token_ant.getNome() or "ID" in self.token_ant.getNome():
+                if Tag.INTEGER in self.token_ant.getNome() or Tag.DOUBLE in self.token_ant.getNome() or Tag.STRING in self.token_ant.getNome() or Tag.ID in self.token_ant.getNome():
                     self.retornaPonteiro()
                     self.lookahead = self.input_file.read(1)
                     char = self.lookahead.decode('ascii')
@@ -103,21 +104,21 @@ class Automaton:
                         self.state = 1
                         self.lexema = ""
                         self.current_column = self.current_column - 1
-                        token = Token("OP_NEGATION", "-", self.current_line, self.current_column)
+                        token = Token(Tag.OP_NEGATION, "-", self.current_line, self.current_column)
                         self.retornaPonteiro()
                         return token
                     else:
                         self.state = 1
                         self.lexema = ""
                         self.current_column = self.current_column - 1
-                        token = Token("OP_SUBTRACTION", "-", self.current_line, self.current_column)
+                        token = Token(Tag.OP_SUBTRACTION, "-", self.current_line, self.current_column)
                         self.retornaPonteiro()
                         return token
                 else:
                     self.state = 1
                     self.lexema = ""
                     self.current_column = self.current_column - 1
-                    token = Token("OP_NEGATION", "-", self.current_line, self.current_column)
+                    token = Token(Tag.OP_NEGATION, "-", self.current_line, self.current_column)
                     self.retornaPonteiro()
                     return token
 
@@ -125,11 +126,11 @@ class Automaton:
             elif self.state == 6:
                 if char == '=':
                     self.state = 1
-                    return Token("OP_DIFFERENT", "!=", self.current_line, self.current_column)
+                    return Token(Tag.OP_DIFFERENT, "!=", self.current_line, self.current_column)
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = Token("OP_EXCLAMATION", "!", self.current_line, self.current_column)
+                    token = Token(Tag.OP_EXCLAMATION, "!", self.current_line, self.current_column)
                     self.retornaPonteiro()
                     return token
             
@@ -137,11 +138,11 @@ class Automaton:
             elif self.state == 9:
                 if char == '=':
                     self.state = 1
-                    return Token("OP_EQUAL", "==", self.current_line, self.current_column)
+                    return Token(Tag.OP_EQUAL, "==", self.current_line, self.current_column)
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = Token("OP_ASSIGN", "=", self.current_line, self.current_column)
+                    token = Token(Tag.OP_ASSIGN, "=", self.current_line, self.current_column)
                     self.retornaPonteiro()
                     return token
             
@@ -149,11 +150,11 @@ class Automaton:
             elif self.state == 12:
                 if char == '=':
                     self.state = 1
-                    return Token("OP_GREATER_EQUAL", ">=", self.current_line, self.current_column)
+                    return Token(Tag.OP_GREATER_EQUAL, ">=", self.current_line, self.current_column)
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = Token("OP_GREATER", ">", self.current_line, self.current_column)
+                    token = Token(Tag.OP_GREATER, ">", self.current_line, self.current_column)
                     self.retornaPonteiro()
                     return token
             
@@ -161,11 +162,11 @@ class Automaton:
             elif self.state == 15:
                 if char == '=':
                     self.state = 1
-                    return Token("OP_LESS_EQUAL", "<=", self.current_line, self.current_column)
+                    return Token(Tag.OP_LESS_EQUAL, "<=", self.current_line, self.current_column)
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = Token("OP_LESS", "<", self.current_line, self.current_column)
+                    token = Token(Tag.OP_LESS, "<", self.current_line, self.current_column)
                     self.retornaPonteiro()
                     return token
             
@@ -176,9 +177,12 @@ class Automaton:
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = self.symbol_table.add_lexema(self.lexema)
+                    token = self.ts.getToken(lexema)
                     token.setLinha(self.current_line)
                     token.setColuna(self.current_column)
+                    if(token is None):
+                        token = Token(Tag.ID, lexema, self.n_line, self.n_column)
+                        self.ts.addToken(lexema, token)
                     self.lexema = ""
                     self.retornaPonteiro()
                     self.token_ant = token
@@ -194,7 +198,7 @@ class Automaton:
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = Token("INTEGER", self.lexema, self.current_line, self.current_column)
+                    token = Token(Tag.INTEGER, self.lexema, self.current_line, self.current_column)
                     self.lexema = ""
                     self.retornaPonteiro()
                     self.token_ant = token
@@ -208,7 +212,7 @@ class Automaton:
                     if self.lexema[-1:] != '.':
                         self.state = 1
                         self.current_column = self.current_column - 1
-                        token = Token("DOUBLE", self.lexema, self.current_line, self.current_column)
+                        token = Token(Tag.DOUBLE, self.lexema, self.current_line, self.current_column)
                         self.lexema = ""
                         self.retornaPonteiro()
                         self.token_ant = token
@@ -234,7 +238,7 @@ class Automaton:
                     if self.lexema[-1:] != '\"':
                         self.lexema += char
                         self.state = 1
-                        token = Token("STRING", self.lexema, self.current_line, self.current_column)
+                        token = Token(Tag.STRING, self.lexema, self.current_line, self.current_column)
                         self.lexema = ""
                         self.token_ant = token
                         return token
