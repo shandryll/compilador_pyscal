@@ -402,4 +402,224 @@ class Parser:
                     self.CmdWrite()
                     
     def CmdAtribui(self):
-        
+        if self.eat(Tag.OP_ASSIGN):
+            self.Expressao()
+            
+            if not self.eat(Tag.CHAR_SEMICOLON):
+                self.sinalizaErroSintatico(f'Era esperado ";", encontrado "{self.token.getLexema()}"')    
+        else:
+            # synch: FOLLOW(CmdAtribui)
+            if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.KW_END or self.token.getNome() == Tag.KW_RETURN or self.token.getNome() == Tag.KW_IF or self.token.getNome() == Tag.KW_ELSE or self.token.getNome() == Tag.KW_WHILE or self.token.getNome() == Tag.KW_WRITE:
+                self.sinalizaErroSintatico(f'Esperado "=, ID, END, RETURN, IF, ELSE, WHILE, WRITE", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (CmdAtribui)
+            else:
+                self.skip(f'Esperado "=, ID, END, RETURN, IF, ELSE, WHILE, WRITE", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.CmdAtribui()
+                    
+    def CmdFuncao(self):
+        if self.eat(Tag.CHAR_OPEN_PARENTHESES):
+            self.RegexExp()
+            
+            if not self.eat(Tag.CHAR_CLOSE_PARENTHESES):
+                self.sinalizaErroSintatico(f'Era esperado ")", encontrado "{self.token.getLexema()}"')
+            if not self.eat(Tag.CHAR_SEMICOLON):
+                self.sinalizaErroSintatico(f'Era esperado ";", encontrado "{self.token.getLexema()}"')
+        else:
+            # synch: FOLLOW(CmdFuncao)
+            if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.KW_END or self.token.getNome() == Tag.KW_RETURN or self.token.getNome() == Tag.KW_IF or self.token.getNome() == Tag.KW_ELSE or self.token.getNome() == Tag.KW_WHILE or self.token.getNome() == Tag.KW_WRITE:
+                self.sinalizaErroSintatico(f'Esperado "(, ID, END, RETURN, IF, ELSE, WHILE, WRITE", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (CmdFuncao)
+            else:
+                self.skip(f'Esperado "(, ID, END, RETURN, IF, ELSE, WHILE, WRITE", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.CmdFuncao()
+                    
+    def RegexExp(self):
+        if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
+            self.Expressao()
+            self.RegexExpLine()
+        # skip: (RegexExp)
+        else:
+            self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.RegexExp()
+                
+    def RegexExpLine(self):
+        if self.eat(Tag.CHAR_COMMA):
+            self.Expressao()
+            self.RegexExpLine()
+        # skip: (RegexExpLine)
+        else:
+            self.skip(f'Esperado ",", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.RegexExpLine()
+    
+    def Expressao(self):
+        if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
+            self.Exp1()
+            self.ExpLine()
+        # skip: (Expressao)
+        else:
+            self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.Expressao()
+                
+    def ExpLine(self):
+        if self.eat(Tag.OP_OR):
+            self.Exp1()
+            self.ExpLine()
+        elif self.eat(Tag.OP_AND):
+            self.Exp1()
+            self.ExpLine()
+        # skip: (ExpLine)
+        else:
+            self.skip(f'Esperado "OR, AND", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.ExpLine()
+                
+    def Exp1(self):
+        if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
+            self.Exp2()
+            self.Exp1Line()
+        else:
+        # synch: FOLLOW(Exp1)
+            if self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND:
+                self.sinalizaErroSintatico(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (Exp1)
+            else:
+                self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.Exp1()
+                    
+    def Exp1Line(self):
+        if self.eat(Tag.OP_LESS):
+            self.Exp2()
+            self.Exp1Line()
+        elif self.eat(Tag.OP_LESS_EQUAL):
+            self.Exp2()
+            self.Exp1Line()
+        elif self.eat(Tag.OP_GREATER):
+            self.Exp2()
+            self.Exp1Line()
+        elif self.eat(Tag.OP_GREATER_EQUAL):
+            self.Exp2()
+            self.Exp1Line()
+        elif self.eat(Tag.OP_EQUAL):
+            self.Exp2()
+            self.Exp1Line()
+        elif self.eat(Tag.OP_DIFFERENT):
+            self.Exp2()
+            self.Exp1Line()
+        # skip: (Exp1Line)
+        else:
+            self.skip(f'Esperado "<, <=, >, >=, ==, !=", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.Exp1Line()
+                
+    def Exp2(self):
+        if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
+            self.Exp3()
+            self.Exp2Line()
+        else:
+        # synch: FOLLOW(Exp2)
+            if self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT:
+                self.sinalizaErroSintatico(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (Exp2)
+            else:
+                self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.Exp2()
+                    
+    def Exp2Line(self):
+        if self.eat(Tag.OP_SUM):
+            self.Exp3()
+            self.Exp2Line()
+        elif self.eat(Tag.OP_SUBTRACTION):
+            self.Exp3()
+            self.Exp2Line()
+        # skip: (Exp2Line)
+        else:
+            self.skip(f'Esperado "+, -", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.Exp2Line()
+                
+    def Exp3(self):
+        if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
+            self.Exp4()
+            self.Exp3Line()
+        else:
+        # synch: FOLLOW(Exp3)
+            if self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION:
+                self.sinalizaErroSintatico(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (Exp3)
+            else:
+                self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.Exp3()
+                    
+    def Exp3Line(self):
+        if self.eat(Tag.OP_MULTIPLICATION):
+            self.Exp4()
+            self.Exp3Line()
+        elif self.eat(Tag.OP_DIVISION):
+            self.Exp4()
+            self.Exp3Line()
+        # skip: (Exp3Line)
+        else:
+            self.skip(f'Esperado "*, /", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.Exp3Line()
+                
+    def Exp4(self):
+        if self.eat(Tag.ID):
+            self.Exp4Line()
+        elif not self.eat(Tag.INTEGER) or not self.eat(Tag.DOUBLE) or not self.eat(Tag.STRING) or not self.eat(Tag.KW_TRUE) or not self.eat(Tag.KW_FALSE):
+            self.sinalizaErroSintatico(f'Esperado "CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE", encontrado "{self.token.getLexema()}"')
+        elif self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION:
+            self.OpUnario()
+            self.Exp4()
+        elif self.eat(Tag.CHAR_OPEN_PARENTHESES):
+            self.Expressao()
+            if not self.eat(Tag.CHAR_CLOSE_PARENTHESES):
+                self.sinalizaErroSintatico(f'Esperado ")", encontrado "{self.token.getLexema()}"')
+        else:
+            # synch: FOLLOW(Exp4)
+            if self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION or self.token.getNome() == Tag.OP_MULTIPLICATION or self.token.getNome() == Tag.OP_DIVISION:
+                self.sinalizaErroSintatico(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -, *, /", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (Exp4)
+            else:
+                self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -, *, /", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.Exp4()
+                    
+    def Exp4Line(self):
+        if self.eat(Tag.CHAR_OPEN_PARENTHESES):
+            self.RegexExp()
+            if self.eat(Tag.CHAR_CLOSE_PARENTHESES):
+                self.sinalizaErroSintatico(f'Esperado ")", encontrado "{self.token.getLexema()}"')
+        # skip: (Exp4Line)
+        else:
+            self.skip(f'Esperado "(", encontrado "{self.token.getLexema()}"')
+            if(self.token.getNome() != Tag.EOF): 
+                self.Exp4Line()
+                
+    def OpUnario(self):
+        if not self.eat(Tag.OP_NEGATION) or not self.eat(Tag.OP_EXCLAMATION):
+            self.sinalizaErroSintatico(f'Esperado "-, !", encontrado "{self.token.getLexema()}"')
+        else:
+            # synch: FOLLOW(OpUnario)
+            if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE:
+                self.sinalizaErroSintatico(f'Esperado "-, !, ID, (, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE", encontrado "{self.token.getLexema()}"')
+                return
+            # skip: (OpUnario)
+            else:
+                self.skip(f'Esperado "-, !, ID, (, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE", encontrado "{self.token.getLexema()}"')
+                if(self.token.getNome() != Tag.EOF): 
+                    self.OpUnario()

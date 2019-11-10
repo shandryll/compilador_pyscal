@@ -27,6 +27,7 @@ class Tag(Enum):
 
  # Operators
  OP_SUM = 30
+ OP_SUBTRACTION = 62
  OP_MULTIPLICATION = 31
  OP_DIVISION = 32
  OP_GREATER_EQUAL = 33
@@ -36,6 +37,8 @@ class Tag(Enum):
  OP_DIFFERENT = 37
  OP_EXCLAMATION = 38
  OP_ASSIGN = 39
+ OP_NEGATION = 60
+ OP_EQUAL = 61
 
  # Pontuation
  CHAR_TWO_POINTS = 40
