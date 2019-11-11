@@ -96,7 +96,7 @@ class Automaton:
             
             # Reconhece o char '-' e verifica se o token anterior é um integer, double ou string então retorna um token subtração, se não retorna um token negação
             elif self.state == 3:
-                if Tag.INTEGER in self.token_ant.getNome() or Tag.DOUBLE in self.token_ant.getNome() or Tag.STRING in self.token_ant.getNome() or Tag.ID in self.token_ant.getNome():
+                if Tag.INTEGER == self.token_ant.getNome() or Tag.DOUBLE == self.token_ant.getNome() or Tag.STRING == self.token_ant.getNome() or Tag.ID == self.token_ant.getNome():
                     self.retornaPonteiro()
                     self.lookahead = self.input_file.read(1)
                     char = self.lookahead.decode('ascii')
@@ -177,12 +177,15 @@ class Automaton:
                 else:
                     self.state = 1
                     self.current_column = self.current_column - 1
-                    token = self.ts.getToken(lexema)
+                    token = self.symbol_table.getToken(self.lexema)
+                    
+                    if(token is None):
+                        token = Token(Tag.ID, self.lexema, self.current_line, self.current_column)
+                        self.symbol_table.addToken(self.lexema, token)
+
                     token.setLinha(self.current_line)
                     token.setColuna(self.current_column)
-                    if(token is None):
-                        token = Token(Tag.ID, lexema, self.n_line, self.n_column)
-                        self.ts.addToken(lexema, token)
+                        
                     self.lexema = ""
                     self.retornaPonteiro()
                     self.token_ant = token

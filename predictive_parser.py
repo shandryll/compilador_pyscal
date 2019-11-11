@@ -51,7 +51,7 @@ class Parser:
         else:
             # synch: FOLLOW(Classe)
             if(self.token.getNome() == Tag.EOF):
-                self.sinalizaErroSintatico(f'Esperado "EOF", encontrado "{self.token.getLexema()}"')
+                self.sinalizaErroSintatico(f'Esperado "CLASS, EOF", encontrado "{self.token.getLexema()}"')
                 return
             # skip: (Classe)
             else:
@@ -60,7 +60,7 @@ class Parser:
                     self.Classe()
 
     def DeclaraID(self):
-        if self.token.getNome == Tag.KW_BOOL or self.token.getNome == Tag.KW_INTEGER or self.token.getNome == Tag.KW_STRING or self.token.getNome == Tag.KW_DOUBLE or self.token.getNome == Tag.KW_VOID:
+        if self.token.getNome() == Tag.KW_BOOL or self.token.getNome() == Tag.KW_INTEGER or self.token.getNome() == Tag.KW_STRING or self.token.getNome() == Tag.KW_DOUBLE or self.token.getNome() == Tag.KW_VOID:
             self.TipoPrimitivo()
 
             if not self.eat(Tag.ID):
@@ -79,7 +79,7 @@ class Parser:
                     self.DeclaraID()
 
     def ListaFuncao(self):
-        if self.token.getNome == Tag.KW_DEF:
+        if self.token.getNome() == Tag.KW_DEF:
             self.ListaFuncaoLine()
         # skip: (ListaFuncao)
         else:
@@ -88,7 +88,7 @@ class Parser:
                 self.ListaFuncao()
 
     def ListaFuncaoLine(self):
-        if self.token.getNome == Tag.KW_DEF:
+        if self.token.getNome() == Tag.KW_DEF:
             self.Funcao()
             self.ListaFuncaoLine
         # skip: (ListaFuncaoLine)
@@ -133,7 +133,7 @@ class Parser:
                     self.Funcao()
 
     def RegexDeclaraID(self):
-        if self.token.getNome == Tag.KW_BOOL or self.token.getNome == Tag.KW_INTEGER or self.token.getNome == Tag.KW_STRING or self.token.getNome == Tag.KW_DOUBLE or self.token.getNome == Tag.KW_VOID:
+        if self.token.getNome() == Tag.KW_BOOL or self.token.getNome() == Tag.KW_INTEGER or self.token.getNome() == Tag.KW_STRING or self.token.getNome() == Tag.KW_DOUBLE or self.token.getNome() == Tag.KW_VOID:
             self.DeclaraID()
             
             self.RegexDeclaraID()
@@ -144,7 +144,7 @@ class Parser:
                 self.Funcao()
                 
     def ListaArg(self):
-        if self.token.getNome == Tag.KW_BOOL or self.token.getNome == Tag.KW_INTEGER or self.token.getNome == Tag.KW_STRING or self.token.getNome == Tag.KW_DOUBLE or self.token.getNome == Tag.KW_VOID:
+        if self.token.getNome() == Tag.KW_BOOL or self.token.getNome() == Tag.KW_INTEGER or self.token.getNome() == Tag.KW_STRING or self.token.getNome() == Tag.KW_DOUBLE or self.token.getNome() == Tag.KW_VOID:
             self.Arg()
             
             self.ListaArgLine()
@@ -169,7 +169,7 @@ class Parser:
                 self.ListaArgLine()
                 
     def Arg(self):
-        if self.token.getNome == Tag.KW_BOOL or self.token.getNome == Tag.KW_INTEGER or self.token.getNome == Tag.KW_STRING or self.token.getNome == Tag.KW_DOUBLE or self.token.getNome == Tag.KW_VOID:
+        if self.token.getNome() == Tag.KW_BOOL or self.token.getNome() == Tag.KW_INTEGER or self.token.getNome() == Tag.KW_STRING or self.token.getNome() == Tag.KW_DOUBLE or self.token.getNome() == Tag.KW_VOID:
             self.TipoPrimitivo()
             self.eat(Tag.ID)
         else:
@@ -246,7 +246,7 @@ class Parser:
                     self.TipoPrimitivo()
                     
     def ListaCmd(self):
-        if self.token.getNome == Tag.KW_IF or self.token.getNome == Tag.KW_WHILE or self.token.getNome == Tag.ID or self.token.getNome == Tag.KW_WRITE:
+        if self.token.getNome() == Tag.KW_IF or self.token.getNome() == Tag.KW_WHILE or self.token.getNome() == Tag.ID or self.token.getNome() == Tag.KW_WRITE:
             self.ListaCmdLine()
         # skip: (ListaCmd)
         else:
@@ -255,7 +255,7 @@ class Parser:
                 self.ListaCmd()
                 
     def ListaCmdLine(self):
-        if self.token.getNome == Tag.KW_IF or self.token.getNome == Tag.KW_WHILE or self.token.getNome == Tag.ID or self.token.getNome == Tag.KW_WRITE:
+        if self.token.getNome() == Tag.KW_IF or self.token.getNome() == Tag.KW_WHILE or self.token.getNome() == Tag.ID or self.token.getNome() == Tag.KW_WRITE:
             self.Cmd()
             self.ListaCmdLine()
         # skip: (ListaCmdLine)
@@ -265,13 +265,13 @@ class Parser:
                 self.ListaCmdLine()
                 
     def Cmd(self):
-        if self.token.getNome == Tag.KW_IF:
+        if self.token.getNome() == Tag.KW_IF:
             self.CmdIf()
-        elif self.token.getNome == Tag.KW_WHILE:
+        elif self.token.getNome() == Tag.KW_WHILE:
             self.CmdWhile()
         elif self.eat(Tag.ID):
             self.CmdAtribFunc()
-        elif self.token.getNome == Tag.KW_WRITE:
+        elif self.token.getNome() == Tag.KW_WRITE:
             self.CmdWrite()
         else:
             # synch: FOLLOW(Cmd)
@@ -285,9 +285,9 @@ class Parser:
                     self.Cmd()
                     
     def CmdAtribFunc(self):
-        if self.token.getNome == Tag.OP_ASSIGN:
+        if self.token.getNome() == Tag.OP_ASSIGN:
             self.CmdAtribui()
-        elif self.token.getNome == Tag.CHAR_OPEN_PARENTHESES:
+        elif self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
             self.CmdFuncao()
         else:
             # synch: FOLLOW(CmdAtribFunc)
