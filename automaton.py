@@ -29,14 +29,14 @@ class Automaton:
             self.lookahead = self.input_file.read(1)
             char = self.lookahead.decode('ascii')
 
-            #self.current_column = self.current_column + 1
-
             # Reconhece o char inicial e atribui um estado para resolve-lo
             if self.state == 1:
                 if char == '':
                     return Token(Tag.EOF, Tag.EOF, self.current_line, self.current_column)
-                if char == ' ' or char == '\t' or char == '\r':
+                if char == ' ' or char == '\r':
                     self.state = 1 
+                elif char == '\t':
+                    self.current_column = self.current_column + 3
                 elif char == '\n':
                     self.current_line = self.current_line + 1
                     self.current_column = 1
@@ -250,6 +250,8 @@ class Automaton:
                         self.lexema = ""
                         self.state = 1
 
+            self.current_column = self.current_column + 1
+
     def print_symbol_table(self):
         self.symbol_table.print_symbol_table()
 
@@ -265,7 +267,7 @@ class Automaton:
             self.input_file.seek(self.input_file.tell()-1)
 
     def signals_lexico_error(self, message):
-        print("[Erro Lexico]: ", message, "\n")
+        print("\n", "[Erro Lexico]: ", message, "\n")
         self.cont_erros = self.cont_erros + 1
         if self.cont_erros >= 5:
             sys.exit(0)

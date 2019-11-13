@@ -6,10 +6,15 @@ class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         self.token = lexer.proxToken() # Leitura inicial obrigatoria do primeiro simbolo
+        self.cont_erros = 0
 
     def sinalizaErroSintatico(self, message):
+        print("\n")
         print(f'[Erro Sintatico] na linha "{str(self.token.getLinha())}" e coluna "{str(self.token.getColuna())}":')
         print(message, "\n")
+        self.cont_erros = self.cont_erros + 1
+        if self.cont_erros >= 5:
+            sys.exit(0)
 
     def advance(self):
         print(f'[DEBUG] token: {self.token.toString()}')
@@ -55,7 +60,7 @@ class Parser:
                 return
             # skip: (Classe)
             else:
-                self.skip(f'Esperado "EOF", encontrado "{self.token.getLexema()}"')
+                self.skip(f'Esperado "CLASS, EOF", encontrado "{self.token.getLexema()}"')
                 if(self.token.getNome() != Tag.EOF): 
                     self.Classe()
 
@@ -81,6 +86,9 @@ class Parser:
     def ListaFuncao(self):
         if self.token.getNome() == Tag.KW_DEF:
             self.ListaFuncaoLine()
+        # ListaFuncao -> epsilon
+        elif self.token.getNome() == Tag.KW_DEFSTATIC:
+            return
         # skip: (ListaFuncao)
         else:
             self.skip(f'Esperado "DEF", encontrado "{self.token.getLexema()}"')
@@ -88,12 +96,16 @@ class Parser:
                 self.ListaFuncao()
 
     def ListaFuncaoLine(self):
+        # ListaFuncaoLine -> Funcao ListaFuncao'
         if self.token.getNome() == Tag.KW_DEF:
             self.Funcao()
             self.ListaFuncaoLine
+        # ListaFuncao -> epsilon
+        elif self.token.getNome() == Tag.KW_DEFSTATIC:
+            return
         # skip: (ListaFuncaoLine)
         else:
-            self.skip(f'Esperado "DEF", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "DEF", "DEFSTATIC", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.ListaFuncaoLine()
     
@@ -135,11 +147,13 @@ class Parser:
     def RegexDeclaraID(self):
         if self.token.getNome() == Tag.KW_BOOL or self.token.getNome() == Tag.KW_INTEGER or self.token.getNome() == Tag.KW_STRING or self.token.getNome() == Tag.KW_DOUBLE or self.token.getNome() == Tag.KW_VOID:
             self.DeclaraID()
-            
             self.RegexDeclaraID()
+        # RegexDeclaraID -> episilon
+        elif self.token.getNome() == Tag.ID or self.token.getNome() == Tag.KW_END or self.token.getNome() == Tag.KW_RETURN or self.token.getNome() == Tag.KW_IF or self.token.getNome() == Tag.KW_WHILE or self.token.getNome() == Tag.KW_WRITE:
+            return
         # skip: (RegexDeclaraID)
         else:
-            self.skip(f'Esperado "BOOL, INTEGER, STRING, DOUBLE, VOID", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "BOOL, INTEGER, STRING, DOUBLE, VOID, ID, END, RETURN, IF, WHILE, WRITE", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.Funcao()
                 
@@ -162,9 +176,12 @@ class Parser:
     def ListaArgLine(self):
         if self.eat(Tag.CHAR_COMMA):
             self.ListaArg
+        # ListaArgLine -> episilon
+        elif self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES:
+            return
         # skip: (ListaArgLine)
         else:
-            self.skip(f'Esperado ",", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado ",, )", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.ListaArgLine()
                 
@@ -234,7 +251,7 @@ class Parser:
                     self.Main()
                 
     def TipoPrimitivo(self):
-        if not self.eat(Tag.KW_BOOL) or not self.eat(Tag.KW_INTEGER) or not self.eat(Tag.KW_STRING) or not self.eat(Tag.KW_DOUBLE) or not self.eat(Tag.KW_VOID):
+        if not self.eat(Tag.KW_BOOL) and not self.eat(Tag.KW_INTEGER) and not self.eat(Tag.KW_STRING) and not self.eat(Tag.KW_DOUBLE) and not self.eat(Tag.KW_VOID):
             # synch: FOLLOW(TipoPrimitivo)
             if self.token.getNome() == Tag.ID:
                 self.sinalizaErroSintatico(f'Esperado "BOOL, INTEGER, STRING, DOUBLE, VOID, ID", encontrado "{self.token.getLexema()}"')
@@ -258,9 +275,12 @@ class Parser:
         if self.token.getNome() == Tag.KW_IF or self.token.getNome() == Tag.KW_WHILE or self.token.getNome() == Tag.ID or self.token.getNome() == Tag.KW_WRITE:
             self.Cmd()
             self.ListaCmdLine()
+        # ListaCmdLine -> episilon
+        elif self.token.getNome() == Tag.KW_END or self.token.getNome() == Tag.KW_RETURN or self.token.getNome() == Tag.KW_ELSE:
+            return
         # skip: (ListaCmdLine)
         else:
-            self.skip(f'Esperado "IF, WHILE, ID, WRITE", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "IF, WHILE, ID, WRITE, END, RETURN, ELSE", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.ListaCmdLine()
                 
@@ -441,9 +461,12 @@ class Parser:
         if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
             self.Expressao()
             self.RegexExpLine()
+        # RegexExp -> episilon
+        elif self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES:
+            return
         # skip: (RegexExp)
         else:
-            self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, )", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.RegexExp()
                 
@@ -451,9 +474,12 @@ class Parser:
         if self.eat(Tag.CHAR_COMMA):
             self.Expressao()
             self.RegexExpLine()
+        # RegexExpLine -> episilon
+        elif self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES:
+            return
         # skip: (RegexExpLine)
         else:
-            self.skip(f'Esperado ",", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado ",, )", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.RegexExpLine()
     
@@ -474,9 +500,12 @@ class Parser:
         elif self.eat(Tag.OP_AND):
             self.Exp1()
             self.ExpLine()
+        # ExpLine -> episilon
+        elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA:
+            return
         # skip: (ExpLine)
         else:
-            self.skip(f'Esperado "OR, AND", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "OR, AND, ;, ), ,", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.ExpLine()
                 
@@ -514,9 +543,11 @@ class Parser:
         elif self.eat(Tag.OP_DIFFERENT):
             self.Exp2()
             self.Exp1Line()
+        elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND:
+            return
         # skip: (Exp1Line)
         else:
-            self.skip(f'Esperado "<, <=, >, >=, ==, !=", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "<, <=, >, >=, ==, !=, ;, ), ,, OR, AND", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.Exp1Line()
                 
@@ -542,9 +573,11 @@ class Parser:
         elif self.eat(Tag.OP_SUBTRACTION):
             self.Exp3()
             self.Exp2Line()
+        elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT:
+            return
         # skip: (Exp2Line)
         else:
-            self.skip(f'Esperado "+, -", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "+, -, ;, ), ,, OR, AND, <, <=, >, >=, ==, !=", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.Exp2Line()
                 
@@ -570,16 +603,18 @@ class Parser:
         elif self.eat(Tag.OP_DIVISION):
             self.Exp4()
             self.Exp3Line()
+        elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION:
+            return
         # skip: (Exp3Line)
         else:
-            self.skip(f'Esperado "*, /", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "*, /, ;, ), ,, OR, AND, <, <=, >, >=, ==, !=, +, -", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.Exp3Line()
                 
     def Exp4(self):
         if self.eat(Tag.ID):
             self.Exp4Line()
-        elif not self.eat(Tag.INTEGER) or not self.eat(Tag.DOUBLE) or not self.eat(Tag.STRING) or not self.eat(Tag.KW_TRUE) or not self.eat(Tag.KW_FALSE):
+        elif not self.eat(Tag.INTEGER) and not self.eat(Tag.DOUBLE) and not self.eat(Tag.STRING) and not self.eat(Tag.KW_TRUE) and not self.eat(Tag.KW_FALSE):
             self.sinalizaErroSintatico(f'Esperado "CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE", encontrado "{self.token.getLexema()}"')
         elif self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION:
             self.OpUnario()
@@ -604,9 +639,11 @@ class Parser:
             self.RegexExp()
             if self.eat(Tag.CHAR_CLOSE_PARENTHESES):
                 self.sinalizaErroSintatico(f'Esperado ")", encontrado "{self.token.getLexema()}"')
+        elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION or self.token.getNome() == Tag.OP_MULTIPLICATION or self.token.getNome() == Tag.OP_DIVISION:
+            return
         # skip: (Exp4Line)
         else:
-            self.skip(f'Esperado "(", encontrado "{self.token.getLexema()}"')
+            self.skip(f'Esperado "(, ;, ), ,, OR, AND, <, <=, >, >=, ==, !=, +, -, *, /", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
                 self.Exp4Line()
                 
