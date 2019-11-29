@@ -25,13 +25,19 @@ class SymbolTable:
         self.dict_symbol['or'] = Token(Tag.OP_OR, 'or', 0, 0)
         self.dict_symbol['and'] = Token(Tag.OP_AND, 'and', 0, 0)
         
-
     def getToken(self, lexema):
         token = self.dict_symbol.get(lexema)
         return token
 
     def addToken(self, lexema, token):
         self.dict_symbol[lexema] = token
+
+    def setTipo(self, lexema, tipo):
+        print(lexema)
+        self.dict_symbol[lexema].setTipo(tipo)
+
+    def getTipo(self, lexema):
+        return self.dict_symbol[lexema].getTipo()
 
     def print_symbol_table(self):
         for k, t in (self.dict_symbol.items()):

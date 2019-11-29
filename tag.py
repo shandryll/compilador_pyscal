@@ -61,3 +61,10 @@ class Tag(Enum):
 
  # String
  STRING = 59
+
+ # Semantic
+ LOGICO = 80
+ NUMERICO = 81
+ TEXTO = 82
+ VAZIO = 83
+ ERRO = 84
