@@ -252,6 +252,9 @@ class Automaton:
 
             self.current_column = self.current_column + 1
 
+    def getSymbolTable(self):
+        return self.symbol_table
+
     def print_symbol_table(self):
         self.symbol_table.print_symbol_table()
 

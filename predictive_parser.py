@@ -1,6 +1,5 @@
 import sys
 from tag import Tag
-from symbol_table import SymbolTable
 from token import Token
 from no import No
 
@@ -10,7 +9,7 @@ class Parser:
         self.lexer = lexer
         self.token = lexer.proxToken() # Leitura inicial obrigatoria do primeiro simbolo
         self.cont_erros = 0
-        self.symbol_table = SymbolTable()
+        self.symbol_table = lexer.getSymbolTable()
 
     def sinalizaErroSintatico(self, message):
         print("\n")
@@ -673,8 +672,8 @@ class Parser:
 
             return noExp1Line
         elif self.eat(Tag.OP_LESS_EQUAL):
-            self.Exp2()
-            self.Exp1Line()
+            noExp2 = self.Exp2()
+            noExp1LineFilho = self.Exp1Line()
 
             if noExp1LineFilho.getTipo() == Tag.VAZIO and noExp2.getTipo() == Tag.NUMERICO:
                 noExp1Line.setTipo(Tag.NUMERICO)
@@ -685,8 +684,8 @@ class Parser:
 
             return noExp1Line
         elif self.eat(Tag.OP_GREATER):
-            self.Exp2()
-            self.Exp1Line()
+            noExp2 = self.Exp2()
+            noExp1LineFilho = self.Exp1Line()
 
             if noExp1LineFilho.getTipo() == Tag.VAZIO and noExp2.getTipo() == Tag.NUMERICO:
                 noExp1Line.setTipo(Tag.NUMERICO)
@@ -697,8 +696,8 @@ class Parser:
 
             return noExp1Line
         elif self.eat(Tag.OP_GREATER_EQUAL):
-            self.Exp2()
-            self.Exp1Line()
+            noExp2 = self.Exp2()
+            noExp1LineFilho = self.Exp1Line()
 
             if noExp1LineFilho.getTipo() == Tag.VAZIO and noExp2.getTipo() == Tag.NUMERICO:
                 noExp1Line.setTipo(Tag.NUMERICO)
@@ -709,8 +708,8 @@ class Parser:
 
             return noExp1Line
         elif self.eat(Tag.OP_EQUAL):
-            self.Exp2()
-            self.Exp1Line()
+            noExp2 = self.Exp2()
+            noExp1LineFilho = self.Exp1Line()
 
             if noExp1LineFilho.getTipo() == Tag.VAZIO and noExp2.getTipo() == Tag.NUMERICO:
                 noExp1Line.setTipo(Tag.NUMERICO)
@@ -721,8 +720,8 @@ class Parser:
 
             return noExp1Line
         elif self.eat(Tag.OP_DIFFERENT):
-            self.Exp2()
-            self.Exp1Line()
+            noExp2 = self.Exp2()
+            noExp1LineFilho = self.Exp1Line()
 
             if noExp1LineFilho.getTipo() == Tag.VAZIO and noExp2.getTipo() == Tag.NUMERICO:
                 noExp1Line.setTipo(Tag.NUMERICO)
@@ -768,72 +767,155 @@ class Parser:
                     return self.Exp2()
                     
     def Exp2Line(self):
+        noExp2Line = No()
+
         if self.eat(Tag.OP_SUM):
-            self.Exp3()
-            self.Exp2Line()
+            noExp3 = self.Exp3()
+            noExp2LineFilho = self.Exp2Line()
+
+            if noExp2LineFilho.getTipo() == Tag.VAZIO and noExp3.getTipo() == Tag.NUMERICO:
+                noExp2Line.setTipo(Tag.NUMERICO)
+            elif noExp2LineFilho.getTipo() == noExp3.getTipo() and noExp3.getTipo() == Tag.NUMERICO:
+                noExp2Line.setTipo(Tag.NUMERICO)
+            else:
+                noExp2Line.setTipo(Tag.ERRO)
+
+            return noExp2Line
         elif self.eat(Tag.OP_SUBTRACTION):
-            self.Exp3()
-            self.Exp2Line()
+            noExp3 = self.Exp3()
+            noExp2LineFilho = self.Exp2Line()
+
+            if noExp2LineFilho.getTipo() == Tag.VAZIO and noExp3.getTipo() == Tag.NUMERICO:
+                noExp2Line.setTipo(Tag.NUMERICO)
+            elif noExp2LineFilho.getTipo() == noExp3.getTipo() and noExp3.getTipo() == Tag.NUMERICO:
+                noExp2Line.setTipo(Tag.NUMERICO)
+            else:
+                noExp2Line.setTipo(Tag.ERRO)
+
+            return noExp2Line
         elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT:
-            return
+            noExp2Line.setTipo(Tag.VAZIO)
+            return noExp2Line
         # skip: (Exp2Line)
         else:
             self.skip(f'Esperado "+, -, ;, ), ,, OR, AND, <, <=, >, >=, ==, !=", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
-                self.Exp2Line()
+                return self.Exp2Line()
                 
     def Exp3(self):
+        noExp3 = No()
+
         if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE or self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES:
-            self.Exp4()
-            self.Exp3Line()
+            noExp4 = self.Exp4()
+            noExp3Line = self.Exp3Line()
+
+            if noExp3Line.getTipo() == Tag.VAZIO:
+                noExp3.setTipo(noExp4.getTipo())
+            elif noExp3Line.getTipo() == noExp4.getTipo() and noExp3Line.getTipo() == Tag.NUMERICO:
+                noExp3.setTipo(Tag.NUMERICO)
+            else:
+                noExp3.setTipo(Tag.ERRO)
+
+            return noExp3
         else:
         # synch: FOLLOW(Exp3)
             if self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION:
                 self.sinalizaErroSintatico(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -", encontrado "{self.token.getLexema()}"')
-                return
+                return noExp3
             # skip: (Exp3)
             else:
                 self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -", encontrado "{self.token.getLexema()}"')
                 if(self.token.getNome() != Tag.EOF): 
-                    self.Exp3()
+                    return self.Exp3()
                     
     def Exp3Line(self):
+        noExp3Line = No()
+
         if self.eat(Tag.OP_MULTIPLICATION):
-            self.Exp4()
-            self.Exp3Line()
+            noExp4 = self.Exp4()
+            noExp3LineFilho = self.Exp3Line()
+
+            if noExp3LineFilho.getTipo() == Tag.VAZIO and noExp4.getTipo() == Tag.NUMERICO:
+                noExp3Line.setTipo(Tag.NUMERICO)
+            elif noExp3LineFilho.getTipo() == noExp4.getTipo() and noExp4.getTipo() == Tag.NUMERICO:
+                noExp3Line.setTipo(Tag.NUMERICO)
+            else:
+                noExp3Line.setTipo(Tag.ERRO)
+
+            return noExp3Line
         elif self.eat(Tag.OP_DIVISION):
-            self.Exp4()
-            self.Exp3Line()
+            noExp4 = self.Exp4()
+            noExp3LineFilho = self.Exp3Line()
+
+            if noExp3LineFilho.getTipo() == Tag.VAZIO and noExp4.getTipo() == Tag.NUMERICO:
+                noExp3Line.setTipo(Tag.NUMERICO)
+            elif noExp3LineFilho.getTipo() == noExp4.getTipo() and noExp4.getTipo() == Tag.NUMERICO:
+                noExp3Line.setTipo(Tag.NUMERICO)
+            else:
+                noExp3Line.setTipo(Tag.ERRO)
+
+            return noExp3Line
         elif self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION:
-            return
+            noExp3Line.setTipo(Tag.VAZIO)
+            return noExp3Line
         # skip: (Exp3Line)
         else:
             self.skip(f'Esperado "*, /, ;, ), ,, OR, AND, <, <=, >, >=, ==, !=, +, -", encontrado "{self.token.getLexema()}"')
             if(self.token.getNome() != Tag.EOF): 
-                self.Exp3Line()
+                return self.Exp3Line()
                 
     def Exp4(self):
+        noExp4 = No()
+        tempTok = Token(self.token.getNome(), self.token.getLexema(), self.token.getLinha(), self.token.getColuna())
+
         if self.eat(Tag.ID):
             self.Exp4Line()
-        elif self.eat(Tag.INTEGER) or self.eat(Tag.DOUBLE) or self.eat(Tag.STRING) or self.eat(Tag.KW_TRUE) or self.eat(Tag.KW_FALSE):
-            return
+            noExp4.setTipo(self.symbol_table.getTipo(tempTok.getLexema()))
+
+            if noExp4.getTipo() == None:
+                noExp4.setTipo(Tag.ERRO)
+                self.sinalizaErroSemantico("ID não declarado")
+
+            return noExp4
+        elif self.eat(Tag.INTEGER) or self.eat(Tag.DOUBLE):
+            noExp4.setTipo(Tag.NUMERICO)
+            return noExp4
+        elif self.eat(Tag.STRING):
+            noExp4.setTipo(Tag.TEXTO)
+            return noExp4
+        elif self.eat(Tag.KW_TRUE) or self.eat(Tag.KW_FALSE):
+            noExp4.setTipo(Tag.LOGICO)
+            return noExp4
         elif self.token.getNome() == Tag.OP_NEGATION or self.token.getNome() == Tag.OP_EXCLAMATION:
-            self.OpUnario()
-            self.Exp4()
+            noOpUnario = self.OpUnario()
+            noExp4Filho = self.Exp4()
+
+            if noExp4Filho.getTipo() == noOpUnario.getTipo() and noOpUnario.getTipo() == Tag.NUMERICO:
+                noExp4.setTipo(Tag.NUMERICO)
+            elif noExp4Filho.getTipo() == noOpUnario.getTipo() and noOpUnario.getTipo() == Tag.LOGICO:
+                noExp4.setTipo(Tag.LOGICO)
+            else:
+                noExp4.setTipo(Tag.ERRO)
+
+            return noExp4
         elif self.eat(Tag.CHAR_OPEN_PARENTHESES):
-            self.Expressao()
+            noExpressao = self.Expressao()
             if not self.eat(Tag.CHAR_CLOSE_PARENTHESES):
                 self.sinalizaErroSintatico(f'Esperado ")", encontrado "{self.token.getLexema()}"')
+            else:
+                noExp4.setTipo(noExpressao.getTipo())
+
+            return noExp4
         else:
             # synch: FOLLOW(Exp4)
             if self.token.getNome() == Tag.CHAR_SEMICOLON or self.token.getNome() == Tag.CHAR_CLOSE_PARENTHESES or self.token.getNome() == Tag.CHAR_COMMA or self.token.getNome() == Tag.OP_OR or self.token.getNome() == Tag.OP_AND or self.token.getNome() == Tag.OP_LESS or self.token.getNome() == Tag.OP_LESS_EQUAL or self.token.getNome() == Tag.OP_GREATER or self.token.getNome() == Tag.OP_GREATER_EQUAL or self.token.getNome() == Tag.OP_EQUAL or self.token.getNome() == Tag.OP_DIFFERENT or self.token.getNome() == Tag.OP_SUM or self.token.getNome() == Tag.OP_SUBTRACTION or self.token.getNome() == Tag.OP_MULTIPLICATION or self.token.getNome() == Tag.OP_DIVISION:
                 self.sinalizaErroSintatico(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -, *, /", encontrado "{self.token.getLexema()}"')
-                return
+                return noExp4
             # skip: (Exp4)
             else:
                 self.skip(f'Esperado "ID, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE, -, !, (, ;, ), ,, or, and, <, <=, >, >=, ==, !=, +, -, *, /", encontrado "{self.token.getLexema()}"')
                 if(self.token.getNome() != Tag.EOF): 
-                    self.Exp4()
+                    return self.Exp4()
                     
     def Exp4Line(self):
         if self.eat(Tag.CHAR_OPEN_PARENTHESES):
@@ -849,15 +931,21 @@ class Parser:
                 self.Exp4Line()
                 
     def OpUnario(self):
-        if not self.eat(Tag.OP_NEGATION) or not self.eat(Tag.OP_EXCLAMATION):
-            self.sinalizaErroSintatico(f'Esperado "-, !", encontrado "{self.token.getLexema()}"')
+        noOpUnario = No()
+
+        if self.eat(Tag.OP_NEGATION):
+            noOpUnario.setTipo(Tag.NUMERICO)
+            return noOpUnario
+        elif self.eat(Tag.OP_EXCLAMATION):
+            noOpUnario.setTipo(Tag.LOGICO)
+            return noOpUnario
         else:
             # synch: FOLLOW(OpUnario)
             if self.token.getNome() == Tag.ID or self.token.getNome() == Tag.CHAR_OPEN_PARENTHESES or self.token.getNome() == Tag.INTEGER or self.token.getNome() == Tag.DOUBLE or self.token.getNome() == Tag.STRING or self.token.getNome() == Tag.KW_TRUE or self.token.getNome() == Tag.KW_FALSE:
                 self.sinalizaErroSintatico(f'Esperado "-, !, ID, (, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE", encontrado "{self.token.getLexema()}"')
-                return
+                return noOpUnario
             # skip: (OpUnario)
             else:
                 self.skip(f'Esperado "-, !, ID, (, CONST_INTEGER, CONST_DOUBLE, CONST_STRING, TRUE, FALSE", encontrado "{self.token.getLexema()}"')
                 if(self.token.getNome() != Tag.EOF): 
-                    self.OpUnario()
+                    return self.OpUnario()

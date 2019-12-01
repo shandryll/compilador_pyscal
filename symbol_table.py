@@ -26,14 +26,12 @@ class SymbolTable:
         self.dict_symbol['and'] = Token(Tag.OP_AND, 'and', 0, 0)
         
     def getToken(self, lexema):
-        token = self.dict_symbol.get(lexema)
-        return token
+        return self.dict_symbol.get(lexema)
 
     def addToken(self, lexema, token):
         self.dict_symbol[lexema] = token
 
     def setTipo(self, lexema, tipo):
-        print(lexema)
         self.dict_symbol[lexema].setTipo(tipo)
 
     def getTipo(self, lexema):
@@ -41,4 +39,4 @@ class SymbolTable:
 
     def print_symbol_table(self):
         for k, t in (self.dict_symbol.items()):
-            print(k, ":", t.toString())
+            print(k, ":", t.toString(), "-", t.getTipo())
